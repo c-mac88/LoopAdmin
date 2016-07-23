@@ -15,8 +15,6 @@ var jsSources = ['app/*.js'],
 //used for injections
 var paths = ['./bower_components/','./app/js/*.js','./app/**/*.css'];
 
-
-
 gulp.task('connect', function() {
    connect.server({
        root: '.',

@@ -15,11 +15,71 @@
         $scope.looperSelected = "";
 
         $scope.selectLooper = function(selected) {
+            $('#calendar').fullCalendar('destroy');
+            var calendar = $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next',
+                    center: 'title',
+                    right: 'month,basicWeek,basicDay'
+                },
+                selectable: true,
+                selectHelper: true,
+                select: function(start, end, allDay) {
+                    var title = prompt('Event Title:');
+                    if (title) {
+                        calendar.fullCalendar('renderEvent', {
+                                title: title,
+                                start: start,
+                                end: end,
+                                allDay: allDay
+                            },
+                            true // make the event "stick"
+                        );
+                    }
+                    calendar.fullCalendar('unselect');
+                },
+                droppable: true, // this allows things to be dropped onto the calendar !!!
+                drop: function(date, allDay) { // this function is called when something is dropped
+
+                    // retrieve the dropped element's stored Event Object
+                    var originalEventObject = $(this).data('eventObject');
+
+                    // we need to copy it, so that multiple events don't have a reference to the same object
+                    var copiedEventObject = $.extend({}, originalEventObject);
+
+                    // assign it the date that was reported
+                    copiedEventObject.start = date;
+                    copiedEventObject.allDay = allDay;
+
+                    // render the event on the calendar
+                    // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
+                    $('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
+
+                    // is the "remove after drop" checkbox checked?
+                    if ($('#drop-remove').is(':checked')) {
+                        // if so, remove the element from the "Draggable Events" list
+                        $(this).remove();
+                    }
+
+                },
+                editable: true,
+                // US Holidays
+                events: []
+
+            });
+
             $scope.looperSelected = selected;
-            var currentDate = $('#calendar').fullCalendar('getDate');
-            $scope.currentDate = currentDate.toString().substr(0, 15);
-            console.log($scope.currentDate);
-            getEvents();
+            var looperQuery = new Parse.Query('User');
+            looperQuery.equalTo('DisplyName', selected);
+            looperQuery.find({
+                success: function(data) {
+                    console.log(data[0]);
+                    getEvents(data[0]);
+                },
+                error: function(err) {
+                    console.log("err" + err);
+                }
+            })
         };
 
 
@@ -90,14 +150,11 @@
                 },
                 editable: true,
                 // US Holidays
-                events: 'https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic'
+                events: []
 
             });
 
         });
-
-        var currentDate = $('#calendar').fullCalendar('getDate');
-        $scope.currentDate = currentDate.toString().substr(0, 15);
 
 
         $('#external-events div.external-event').each(function() {
@@ -120,10 +177,10 @@
 
         });
 
-        var getEvents = function() {
-            $scope.theseEvents = [];
+
+        var getEvents = function(selectedUserId) {
             var query = new Parse.Query("Task");
-            query.equalTo('startsAtDate', $scope.currentDate);
+            query.equalTo('user', selectedUserId);
             query.find({
                 success: function(object) {
                     nextFunction(object);
@@ -134,19 +191,6 @@
             });
         };
 
-        getEvents();
-
-        // $scope.homeStartHour = "7:00";
-        // $scope.homeEndHour = "08:00";
-        // $scope.homeEvent = {
-        //     "location": Parse.User.current().get('Address'),
-        //     "eventname": 'Home',
-        //     "starthour": $scope.homeStartHour,
-        //     "endhour": $scope.homeEndHour,
-        //     "eventtype": "ion-home",
-        //     "color": "rgba(0, 52, 102, .5)"
-        // };
-
         var nextFunction = function(sneeze) {
             var theseEvents = [];
 
@@ -156,12 +200,6 @@
                     "eventname": "",
                     "starthour": "",
                     "endhour": "",
-                    "eventtype": "",
-                    "left": "",
-                    "top": "",
-                    "height": "",
-                    "color": "",
-                    "dateformat": "",
                     "address": "",
                     "memo": ""
                 };
@@ -169,7 +207,6 @@
                 var eventname = sneeze[i].get('eventname');
                 var starthour = sneeze[i].get('starthour');
                 var endhour = sneeze[i].get('endhour');
-                var color = sneeze[i].get('color');
                 var address = sneeze[i].get('address');
                 var memo = sneeze[i].get('memo');
 
@@ -177,7 +214,6 @@
                 newEvent.eventname = eventname;
                 newEvent.starthour = parseInt(starthour.substr(0, 2));
                 newEvent.endhour = endhour;
-                newEvent.color = color;
                 newEvent.address = address;
                 newEvent.memo = memo;
 
@@ -189,54 +225,33 @@
 
         }
 
+
+
         var finalFunction = function(things) {
             things.sort(function(a, b) {
                 return a.starthour - b.starthour
             });
-            var letters = "ABCDEFGHIJK";
             var stuff = things;
+            var calendar = $('#calendar');
             for (var i = 0; i < stuff.length; i++) {
-
+                var starthour = "";
                 var newnew = {
-                    "startsAtDate": "",
-                    "eventname": "",
-                    "starthour": "",
-                    "endhour": "",
-                    "left": "",
-                    "top": "",
-                    "height": "",
-                    "color": "",
-                    "dateformat": "",
-                    "address": "",
-                    "memo": "",
-                    "letter": ""
+                    "title": "",
+                    "start": "",
                 };
-                newnew.startsAtDate = stuff[i].startsAtDate;
-                var left = 60 + 'px';
-                var top = ((stuff[i].starthour - 7) * 100) + 'px';
-                var height = (parseInt(stuff[i].endhour.substr(0, 2)) - stuff[i].starthour) * 100 + 'px';
-                newnew.eventname = stuff[i].eventname;
                 if (stuff[i].starthour < 10) {
-                    newnew.starthour = "0" + stuff[i].starthour + ":00";
+                    starthour = "0" + stuff[i].starthour + ":00";
                 } else {
-                    newnew.starthour = stuff[i].starthour += ":00";
+                    starthour = stuff[i].starthour += ":00";
                 };
-                newnew.endhour = stuff[i].endhour;
-                newnew.left = left;
-                newnew.top = top;
-                newnew.height = height;
-                newnew.color = stuff[i].color;
-                newnew.dateformat = new Date(stuff[i].startsAtDate).toLocaleDateString();
-                newnew.address = stuff[i].address;
-                newnew.memo = stuff[i].memo;
-                newnew.letter = letters.substr(i + 1, 1);
-
-                $scope.$apply(function() {
-                    $scope.theseEvents.push(newnew);
-
-                });
-                console.log($scope.theseEvents);
-
+                newnew.start = new Date(stuff[i].startsAtDate);
+                newnew.title = stuff[i].eventname + "," + starthour + "-" + stuff[i].endhour + "," + stuff[i].address + "," + stuff[i].memo;
+                calendar.fullCalendar('renderEvent', {
+                        title: newnew.title,
+                        start: newnew.start
+                    },
+                    true // make the event "stick"
+                );
             }
 
         }
