@@ -1,0 +1,26 @@
+{
+  "name": "WeekendProject",
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "https://github.com/c-mac88/WeekendProject",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "angular": "^1.5.5",
+    "toastr": "^2.1.2",
+    "angular-ui-router": "^0.2.18",
+    "parse": "^1.8.5"
+  },
+  "resolutions": {
+    "masonry": "~4.0.0",
+    "outlayer": "~2.0.0"
+  }
+}

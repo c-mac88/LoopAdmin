@@ -1,0 +1,67 @@
+<div class="container-fluid">
+    <div class="row-fluid">
+        <!--/span-->
+        <div class="span2" id="content">
+            <div class="row-fluid">
+                <!-- block -->
+                <div class="block">
+                    <div class="navbar navbar-inner block-header">
+                        <div class="muted pull-left">Loopers</div>
+                    </div>
+                    <div class="block-content collapse in">
+                        <div class="span12">
+                            <div ng-repeat="looper in theseLoopers">
+                                <p ng-click="selectLooper(looper.Display)" ng-class="{looperSelected: looperSelected === looper.Display}">{{looper.First}} {{looper.Last}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /block -->
+            </div>
+        </div>
+        <div class="span10" id="content">
+            <div class="row-fluid">
+                <!-- block -->
+                <div class="block">
+                    <div class="navbar navbar-inner block-header">
+                        <div class="muted pull-left">Calendar</div>
+                    </div>
+                    <div class="block-content collapse in">
+                        <div class="span2">
+                            <div id='external-events'>
+                                <h4>Draggable Events</h4>
+                                <div class='external-event'>My Event 1</div>
+                                <div class='external-event'>My Event 2</div>
+                                <div class='external-event'>My Event 3</div>
+                                <div class='external-event'>My Event 4</div>
+                                <div class='external-event'>My Event 5</div>
+                                <div class='external-event'>My Event 6</div>
+                                <div class='external-event'>My Event 7</div>
+                                <div class='external-event'>My Event 8</div>
+                                <div class='external-event'>My Event 9</div>
+                                <div class='external-event'>My Event 10</div>
+                                <div class='external-event'>My Event 11</div>
+                                <div class='external-event'>My Event 12</div>
+                                <div class='external-event'>My Event 13</div>
+                                <div class='external-event'>My Event 14</div>
+                                <div class='external-event'>My Event 15</div>
+                                <p>
+                                    <input type='checkbox' id='drop-remove' />
+                                    <label for='drop-remove'>remove after drop</label>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="span10">
+                            <div id='calendar'></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /block -->
+            </div>
+        </div>
+    </div>
+    <hr>
+    <footer>
+        <p>&copy; Nick Casey & Christian McFarland 2016</p>
+    </footer>
+</div>
